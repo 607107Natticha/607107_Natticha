@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Consistency Review</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --line: #dbe3ef;
+      --text: #17212f;
+      --muted: #5c6b80;
+      --brand: #2358d6;
+      --brand-soft: #e8f0ff;
+      --ok: #107a3d;
+      --warn: #a86200;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(18, 42, 82, 0.05);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .sub {
+      color: var(--muted);
+      margin: 0;
+      font-size: 13px;
+    }
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    input[type="text"], input[type="number"], select, input[type="file"] {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 13px;
+      color: var(--text);
+    }
+    button {
+      border: 1px solid transparent;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--text);
+      border-color: var(--line);
+    }
+    button.ghost {
+      background: var(--brand-soft);
+      color: var(--brand);
+      border-color: #cfe0ff;
+    }
+    button:hover { opacity: 0.93; }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .chip {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #20314f;
+    }
+    .chip strong { color: #0e2c7d; }
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 265px);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+    th, td {
+      border-bottom: 1px solid #edf1f7;
+      padding: 8px;
+      font-size: 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8faff;
+      border-bottom: 1px solid var(--line);
+    }
+    tbody tr:nth-child(odd) { background: #fcfdff; }
+    tbody tr:hover { background: #f4f8ff; }
+    .id-code { font-family: Consolas, "Courier New", monospace; font-size: 11px; }
+    .type-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      border: 1px solid transparent;
+    }
+    .type-consistency {
+      color: #0a4f26;
+      background: #e9f9ef;
+      border-color: #c4eccc;
+    }
+    .type-party {
+      color: #68440a;
+      background: #fff4df;
+      border-color: #ffe0b3;
+    }
+    .vote-input {
+      width: 110px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    .changed {
+      border-color: #ff9b3f !important;
+      background: #fff7ee !important;
+    }
+    .msg {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .link-btn {
+      color: #1e4ec8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+    }
+    .modal.show { display: flex; }
+    .modal-card {
+      width: min(1200px, 96vw);
+      max-height: 94vh;
+      background: #111827;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #e5edff;
+      font-size: 13px;
+      gap: 10px;
+    }
+    .modal-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      color: #d7e3ff;
+      font-size: 12px;
+    }
+    .modal-tools button {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+    .zoom-range {
+      width: 140px;
+    }
+    .zoom-text {
+      min-width: 48px;
+      text-align: right;
+      color: #c4d7ff;
+    }
+    .modal-img-wrap {
+      overflow: auto;
+      background: #0b1220;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 6px;
+      text-align: center;
+    }
+    .modal img {
+      max-width: 100%;
+      max-height: calc(94vh - 130px);
+      object-fit: contain;
+      transform-origin: center top;
+      transition: transform 0.05s linear;
+    }
+    .hidden { display: none; }
+    @media (max-width: 1120px) {
+      .span-4, .span-3, .span-2 { grid-column: span 6; }
+    }
+    @media (max-width: 680px) {
+      .span-4, .span-3, .span-2 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="panel">
+      <h1>Consistency Review</h1>
+      <p class="sub">
+        ตารางนี้จะยึดค่า <strong>id,votes</strong> จากไฟล์ <code>final_data/Two/submission_fixed_v4.csv</code>
+        และสามารถแก้ไขเพื่อ export ได้ทันที
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div class="field span-2">
+          <label>Filter Type</label>
+          <select id="typeFilter">
+            <option value="all">all</option>
+            <option value="consistency">consistency</option>
+            <option value="party_list">party_list</option>
+          </select>
+        </div>
+        <div class="field span-3">
+          <label>Search id</label>
+          <input id="searchInput" type="text" placeholder="เช่น constituency_10_1" />
+        </div>
+        <div class="field span-3">
+          <label>Sort Votes</label>
+          <select id="sortVotes">
+            <option value="none">none</option>
+            <option value="desc">high to low</option>
+            <option value="asc">low to high</option>
+          </select>
+        </div>
+        <div class="field span-2">
+          <label>Min votes</label>
+          <input id="minVotes" type="number" placeholder="0" />
+        </div>
+        <div class="field span-2">
+          <label>Max votes</label>
+          <input id="maxVotes" type="number" placeholder="50000" />
+        </div>
+        <div class="field span-2">
+          <button id="resetFiltersBtn" class="secondary" type="button">Reset filters</button>
+        </div>
+        <div class="field span-2">
+          <button id="reloadDefaultBtn" class="ghost" type="button">Reload default CSV</button>
+        </div>
+        <div class="field span-2">
+          <button id="randomRowBtn" class="secondary" type="button">Random row</button>
+        </div>
+        <div class="field span-2">
+          <button id="exportBtn" type="button">Export id,votes CSV</button>
+        </div>
+        <div class="field span-2">
+          <button id="exportImageOverridesBtn" class="secondary" type="button">Export image overrides</button>
+        </div>
+        <div class="field span-2">
+          <button id="importImageOverridesBtn" class="secondary" type="button">Import image overrides</button>
+        </div>
+        <div class="field span-2">
+          <button id="clearImageOverridesBtn" class="secondary" type="button">Clear image overrides</button>
+        </div>
+        <div class="field span-2">
+          <button id="batchSetImageRangeBtn" class="secondary" type="button">Batch set image range</button>
+        </div>
+        <div class="field span-2">
+          <button id="repairImageOverridesBtn" class="secondary" type="button">Repair existing override paths</button>
+        </div>
+      </div>
+      <input id="imageOverridesFileInput" type="file" accept=".json,application/json" class="hidden" />
+
+      <div class="stats" id="stats"></div>
+      <div id="message" class="msg"></div>
+    </section>
+
+    <section class="panel" style="padding: 10px;">
+      <div class="table-wrap">
+        <table id="reviewTable">
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th style="width: 140px;">type</th>
+              <th>id</th>
+              <th style="width: 170px;">doc</th>
+              <th style="width: 80px;">row_no</th>
+              <th style="width: 140px;">votes</th>
+              <th style="width: 210px;">image</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="imgModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div id="modalTitle">Image preview</div>
+        <div class="modal-tools">
+          <button id="zoomOutBtn" class="secondary" type="button">-</button>
+          <button id="zoomInBtn" class="secondary" type="button">+</button>
+          <button id="zoom100Btn" class="secondary" type="button">100%</button>
+          <button id="zoomFitBtn" class="secondary" type="button">Fit</button>
+          <input id="zoomRange" class="zoom-range" type="range" min="25" max="400" step="5" value="100" />
+          <span id="zoomText" class="zoom-text">100%</span>
+          <a id="openNewTabLink" class="link-btn" href="#" target="_blank" rel="noopener noreferrer">open in new tab</a>
+          <button id="closeModalBtn" class="secondary" type="button">Close</button>
+        </div>
+      </div>
+      <div class="modal-img-wrap">
+        <img id="modalImage" alt="preview" />
+      </div>
+      <div id="modalNote" class="msg"></div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_CSV_PATH = "./Two/submission_fixed_v4.csv";
+    const IMAGE_INDEX_PATH = "./image_page_index.json";
+    const IMAGE_BASE = "./images/";
+    const EDIT_STORAGE_KEY = "consistency_review_edits_v2";
+    const IMAGE_OVERRIDE_STORAGE_KEY = "consistency_review_image_overrides_v1";
+
+    const state = {
+      rows: [],
+      filteredRows: [],
+      edits: {},
+      imageMap: {},
+      imageOverrides: {},
+      imageIndexLoaded: false,
+      sourcePath: DEFAULT_CSV_PATH,
+      loaded: false
+    };
+
+    const el = {
+      typeFilter: document.getElementById("typeFilter"),
+      searchInput: document.getElementById("searchInput"),
+      sortVotes: document.getElementById("sortVotes"),
+      minVotes: document.getElementById("minVotes"),
+      maxVotes: document.getElementById("maxVotes"),
+      resetFiltersBtn: document.getElementById("resetFiltersBtn"),
+      reloadDefaultBtn: document.getElementById("reloadDefaultBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      exportImageOverridesBtn: document.getElementById("exportImageOverridesBtn"),
+      importImageOverridesBtn: document.getElementById("importImageOverridesBtn"),
+      clearImageOverridesBtn: document.getElementById("clearImageOverridesBtn"),
+      batchSetImageRangeBtn: document.getElementById("batchSetImageRangeBtn"),
+      repairImageOverridesBtn: document.getElementById("repairImageOverridesBtn"),
+      imageOverridesFileInput: document.getElementById("imageOverridesFileInput"),
+      tbody: document.getElementById("tbody"),
+      stats: document.getElementById("stats"),
+      message: document.getElementById("message"),
+      imgModal: document.getElementById("imgModal"),
+      modalImage: document.getElementById("modalImage"),
+      modalTitle: document.getElementById("modalTitle"),
+      modalNote: document.getElementById("modalNote"),
+      closeModalBtn: document.getElementById("closeModalBtn"),
+      openNewTabLink: document.getElementById("openNewTabLink"),
+      randomRowBtn: document.getElementById("randomRowBtn"),
+      zoomInBtn: document.getElementById("zoomInBtn"),
+      zoomOutBtn: document.getElementById("zoomOutBtn"),
+      zoom100Btn: document.getElementById("zoom100Btn"),
+      zoomFitBtn: document.getElementById("zoomFitBtn"),
+      zoomRange: document.getElementById("zoomRange"),
+      zoomText: document.getElementById("zoomText")
+    };
+
+    let currentZoom = 1;
+    const ZOOM_MIN = 0.25;
+    const ZOOM_MAX = 4;
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function applyZoom(value) {
+      currentZoom = clamp(value, ZOOM_MIN, ZOOM_MAX);
+      el.modalImage.style.transform = "scale(" + currentZoom.toFixed(2) + ")";
+      el.zoomRange.value = String(Math.round(currentZoom * 100));
+      el.zoomText.textContent = Math.round(currentZoom * 100) + "%";
+    }
+
+    function resetZoom() {
+      applyZoom(1);
+    }
+
+    function setMessage(text, tone) {
+      el.message.textContent = text || "";
+      el.message.className = "msg";
+      if (tone === "ok") el.message.classList.add("ok");
+      if (tone === "warn") el.message.classList.add("warn");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function parseCsv(text) {
+      const lines = text.replace(/\r/g, "").split("\n").filter(Boolean);
+      if (!lines.length) return [];
+      const header = lines[0].split(",").map((s) => s.trim().toLowerCase());
+      const idIdx = header.indexOf("id");
+      const votesIdx = header.indexOf("votes");
+      if (idIdx === -1 || votesIdx === -1) {
+        throw new Error("CSV must contain id,votes columns");
+      }
+
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(",");
+        if (!cols[idIdx]) continue;
+        const id = cols[idIdx].trim();
+        const votes = Number((cols[votesIdx] || "").replace(/[^0-9]/g, "")) || 0;
+        const parsed = parseIdMeta(id);
+        rows.push({
+          index: i,
+          id,
+          votes,
+          baseVotes: votes,
+          type: parsed.type,
+          doc: parsed.doc,
+          rowNo: parsed.rowNo
+        });
+      }
+      return rows;
+    }
+
+    function parseIdMeta(id) {
+      const parts = id.split("_");
+      if (id.startsWith("constituency_") && parts.length >= 4) {
+        return {
+          type: "consistency",
+          doc: parts.slice(0, 3).join("_"),
+          rowNo: Number(parts[3]) || null
+        };
+      }
+      if (id.startsWith("party_list_") && parts.length >= 5) {
+        return {
+          type: "party_list",
+          doc: parts.slice(0, 4).join("_"),
+          rowNo: Number(parts[4]) || null
+        };
+      }
+      return { type: "unknown", doc: "", rowNo: null };
+    }
+
+    function getImageCandidates(row) {
+      if (!row.doc) return [];
+      const list = [];
+      if (row.type === "party_list" && Number.isFinite(row.rowNo) && row.rowNo > 0) {
+        // Page mapping for party_list sheets:
+        // - row 1-4 usually on base page (doc.png)
+        // - row 5-38 usually on page2
+        // - row 39+ usually on page3
+        const preferred = row.rowNo <= 4 ? 1 : (row.rowNo >= 39 ? 3 : 2);
+        if (preferred === 1) {
+          list.push(IMAGE_BASE + row.doc + ".png");
+        } else {
+          list.push(IMAGE_BASE + row.doc + "_page" + preferred + ".png");
+          list.push(IMAGE_BASE + row.doc + ".png");
+        }
+        for (let i = 2; i <= 10; i++) {
+          const url = IMAGE_BASE + row.doc + "_page" + i + ".png";
+          if (!list.includes(url)) list.push(url);
+        }
+        return list;
+      }
+      for (let page = 2; page <= 10; page++) {
+        list.push(IMAGE_BASE + row.doc + "_page" + page + ".png");
+      }
+      list.push(IMAGE_BASE + row.doc + ".png");
+      return list;
+    }
+
+    function loadEdits() {
+      try {
+        const raw = localStorage.getItem(EDIT_STORAGE_KEY);
+        state.edits = raw ? JSON.parse(raw) : {};
+      } catch (_err) {
+        state.edits = {};
+      }
+    }
+
+    function saveEdits() {
+      localStorage.setItem(EDIT_STORAGE_KEY, JSON.stringify(state.edits));
+    }
+
+    function loadImageOverrides() {
+      try {
+        const raw = localStorage.getItem(IMAGE_OVERRIDE_STORAGE_KEY);
+        state.imageOverrides = raw ? JSON.parse(raw) : {};
+      } catch (_err) {
+        state.imageOverrides = {};
+      }
+    }
+
+    function saveImageOverrides() {
+      localStorage.setItem(IMAGE_OVERRIDE_STORAGE_KEY, JSON.stringify(state.imageOverrides));
+    }
+
+    function applyEditsToRows() {
+      state.rows.forEach((row) => {
+        if (Object.prototype.hasOwnProperty.call(state.edits, row.id)) {
+          row.votes = Number(state.edits[row.id]) || 0;
+        } else {
+          row.votes = row.baseVotes;
+        }
+      });
+    }
+
+    function buildStats(visibleRows) {
+      const total = state.rows.length;
+      const visible = visibleRows.length;
+      const consistency = visibleRows.filter((r) => r.type === "consistency").length;
+      const partyList = visibleRows.filter((r) => r.type === "party_list").length;
+      const changed = Object.keys(state.edits).length;
+      const sumVisibleVotes = visibleRows.reduce((acc, row) => acc + row.votes, 0);
+
+      el.stats.innerHTML = [
+        `<span class="chip">total rows: <strong>${total.toLocaleString()}</strong></span>`,
+        `<span class="chip">visible rows: <strong>${visible.toLocaleString()}</strong></span>`,
+        `<span class="chip">consistency: <strong>${consistency.toLocaleString()}</strong></span>`,
+        `<span class="chip">party_list: <strong>${partyList.toLocaleString()}</strong></span>`,
+        `<span class="chip">edited rows: <strong>${changed.toLocaleString()}</strong></span>`,
+        `<span class="chip">sum visible votes: <strong>${sumVisibleVotes.toLocaleString()}</strong></span>`
+      ].join("");
+    }
+
+    function getFilteredRows() {
+      const typeFilter = el.typeFilter.value;
+      const search = (el.searchInput.value || "").trim().toLowerCase();
+      const sortVotes = el.sortVotes.value;
+      const minVotes = el.minVotes.value === "" ? null : Number(el.minVotes.value);
+      const maxVotes = el.maxVotes.value === "" ? null : Number(el.maxVotes.value);
+
+      let list = state.rows.slice();
+      if (typeFilter !== "all") {
+        list = list.filter((row) => row.type === typeFilter);
+      }
+      if (search) {
+        list = list.filter((row) => row.id.toLowerCase().includes(search));
+      }
+      if (minVotes !== null && Number.isFinite(minVotes)) {
+        list = list.filter((row) => row.votes >= minVotes);
+      }
+      if (maxVotes !== null && Number.isFinite(maxVotes)) {
+        list = list.filter((row) => row.votes <= maxVotes);
+      }
+      if (sortVotes === "asc") {
+        list.sort((a, b) => a.votes - b.votes || a.id.localeCompare(b.id));
+      } else if (sortVotes === "desc") {
+        list.sort((a, b) => b.votes - a.votes || a.id.localeCompare(b.id));
+      } else {
+        list.sort((a, b) => a.index - b.index);
+      }
+      return list;
+    }
+
+    function renderTable() {
+      const rows = getFilteredRows();
+      state.filteredRows = rows;
+      buildStats(rows);
+
+      const html = rows.map((row, i) => {
+        const isChanged = row.votes !== row.baseVotes;
+        const badgeClass = row.type === "party_list" ? "type-party" : "type-consistency";
+        const badgeText = row.type === "party_list" ? "party_list" : "consistency";
+        const safeId = escapeHtml(row.id);
+        const safeDoc = escapeHtml(row.doc || "-");
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td><span class="type-badge ${badgeClass}">${badgeText}</span></td>
+            <td class="id-code">${safeId}</td>
+            <td>${safeDoc}</td>
+            <td>${row.rowNo || "-"}</td>
+            <td>
+              <input
+                class="vote-input ${isChanged ? "changed" : ""}"
+                data-id="${safeId}"
+                value="${row.votes}"
+                inputmode="numeric"
+                pattern="[0-9]*"
+              />
+            </td>
+            <td>
+              <a class="link-btn js-preview" href="#" data-id="${safeId}">preview</a>
+              &nbsp;|&nbsp;
+              <a class="link-btn js-open" href="#" data-id="${safeId}">open</a>
+              &nbsp;|&nbsp;
+              <a class="link-btn js-set-image" href="#" data-id="${safeId}">set image</a>
+              &nbsp;|&nbsp;
+              <a class="link-btn js-reset-image" href="#" data-id="${safeId}">reset</a>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      el.tbody.innerHTML = html || `<tr><td colspan="7">No rows match current filters</td></tr>`;
+      bindRowEvents();
+    }
+
+    function bindRowEvents() {
+      const voteInputs = el.tbody.querySelectorAll(".vote-input");
+      voteInputs.forEach((inp) => {
+        inp.addEventListener("change", () => {
+          const id = inp.dataset.id;
+          const cleaned = (inp.value || "").replace(/[^0-9]/g, "");
+          const value = cleaned === "" ? 0 : Number(cleaned);
+          inp.value = String(value);
+          state.edits[id] = value;
+
+          const row = state.rows.find((r) => r.id === id);
+          if (row) {
+            row.votes = value;
+            if (row.votes === row.baseVotes) {
+              delete state.edits[id];
+            }
+          }
+          saveEdits();
+          renderTable();
+        });
+      });
+
+      el.tbody.querySelectorAll(".js-preview").forEach((link) => {
+        link.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const id = link.dataset.id;
+          openPreviewById(id);
+        });
+      });
+
+      el.tbody.querySelectorAll(".js-open").forEach((link) => {
+        link.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const id = link.dataset.id;
+          openBestImageInNewTab(id);
+        });
+      });
+
+      el.tbody.querySelectorAll(".js-set-image").forEach((link) => {
+        link.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const id = link.dataset.id;
+          promptSetImageOverride(id);
+        });
+      });
+
+      el.tbody.querySelectorAll(".js-reset-image").forEach((link) => {
+        link.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          const id = link.dataset.id;
+          resetImageOverride(id);
+        });
+      });
+    }
+
+    function findRow(id) {
+      return state.rows.find((r) => r.id === id);
+    }
+
+    function getMappedImage(row) {
+      const override = state.imageOverrides[row.id];
+      if (override && String(override).trim()) {
+        const normalizedOverride = normalizeImagePath(override);
+        if (normalizedOverride) return "./" + normalizedOverride;
+      }
+      const mapped = state.imageMap[row.id];
+      if (!mapped) return null;
+      const normalizedMapped = normalizeImagePath(mapped);
+      if (!normalizedMapped) return null;
+      return "./" + normalizedMapped;
+    }
+
+    function resolveImage(row, callback) {
+      const mappedUrl = getMappedImage(row);
+      if (mappedUrl) {
+        const mappedImg = new Image();
+        const source = state.imageOverrides[row.id] ? "override" : "mapped";
+        mappedImg.onload = () => callback(mappedUrl, [mappedUrl], source);
+        mappedImg.onerror = () => resolveByCandidates(row, callback);
+        mappedImg.src = mappedUrl;
+        return;
+      }
+      resolveByCandidates(row, callback);
+    }
+
+    function resolveByCandidates(row, callback) {
+      const candidates = getImageCandidates(row);
+      let idx = 0;
+      function tryNext() {
+        if (idx >= candidates.length) {
+          callback(null, candidates, "not_found");
+          return;
+        }
+        const url = candidates[idx++];
+        const img = new Image();
+        img.onload = () => callback(url, candidates, "fallback");
+        img.onerror = tryNext;
+        img.src = url;
+      }
+      tryNext();
+    }
+
+    function openPreviewById(id) {
+      const row = findRow(id);
+      if (!row) return;
+      el.modalTitle.textContent = row.id + " (" + row.votes + " votes)";
+      el.modalImage.removeAttribute("src");
+      resetZoom();
+      el.modalNote.textContent = "กำลังค้นหารูป...";
+      el.imgModal.classList.add("show");
+
+      resolveImage(row, (url, candidates, source) => {
+        if (url) {
+          el.modalImage.src = url;
+          el.modalNote.textContent = "โหลดรูปสำเร็จ (" + source + "): " + url;
+          el.openNewTabLink.href = url;
+        } else {
+          el.modalNote.textContent = "ไม่พบรูปในโฟลเดอร์ images สำหรับ " + row.doc + " (" + source + ")";
+          el.openNewTabLink.href = candidates[0] || "#";
+        }
+      });
+    }
+
+    function openBestImageInNewTab(id) {
+      const row = findRow(id);
+      if (!row) return;
+      resolveImage(row, (url, candidates, source) => {
+        const target = url || candidates[0];
+        if (!target) {
+          setMessage("ไม่พบรูปสำหรับ " + row.id, "warn");
+          return;
+        }
+        setMessage("เปิดรูปด้วย " + source + ": " + target, "ok");
+        window.open(target, "_blank", "noopener,noreferrer");
+      });
+    }
+
+    function promptSetImageOverride(id) {
+      const row = findRow(id);
+      if (!row) return;
+      const current = state.imageOverrides[id] || state.imageMap[id] || ("images/" + row.doc + ".png");
+      const input = window.prompt(
+        "กำหนด path รูปใหม่สำหรับ " + id + "\nตัวอย่าง: images/party_list_32_6_page3.png",
+        current
+      );
+      if (input === null) return;
+      const clean = input.trim();
+      if (!clean) {
+        setMessage("ไม่บันทึกค่า: path ว่าง", "warn");
+        return;
+      }
+      state.imageOverrides[id] = clean;
+      saveImageOverrides();
+      setMessage("บันทึก override รูปสำเร็จ: " + id + " -> " + clean, "ok");
+    }
+
+    function resetImageOverride(id) {
+      if (!Object.prototype.hasOwnProperty.call(state.imageOverrides, id)) {
+        setMessage("id นี้ยังไม่มี override", "warn");
+        return;
+      }
+      delete state.imageOverrides[id];
+      saveImageOverrides();
+      setMessage("ลบ override รูปแล้ว: " + id, "ok");
+    }
+
+    function exportImageOverrides() {
+      const payload = {
+        exported_at: new Date().toISOString(),
+        total_overrides: Object.keys(state.imageOverrides).length,
+        overrides: state.imageOverrides
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "image_overrides.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setMessage("Export override สำเร็จ: image_overrides.json", "ok");
+    }
+
+    function importImageOverridesFromText(text) {
+      try {
+        const data = JSON.parse(text);
+        const overrides = data && data.overrides && typeof data.overrides === "object"
+          ? data.overrides
+          : (typeof data === "object" ? data : null);
+        if (!overrides) throw new Error("JSON format invalid");
+        state.imageOverrides = { ...state.imageOverrides, ...overrides };
+        saveImageOverrides();
+        setMessage("Import override สำเร็จ: " + Object.keys(overrides).length + " entries", "ok");
+      } catch (err) {
+        setMessage("Import override ไม่สำเร็จ: " + err.message, "warn");
+      }
+    }
+
+    function clearAllImageOverrides() {
+      const total = Object.keys(state.imageOverrides).length;
+      state.imageOverrides = {};
+      saveImageOverrides();
+      setMessage("ลบ override ทั้งหมดแล้ว: " + total + " entries", "ok");
+    }
+
+    function repairExistingImageOverrides() {
+      const keys = Object.keys(state.imageOverrides);
+      if (!keys.length) {
+        setMessage("ยังไม่มี override ให้ซ่อม", "warn");
+        return;
+      }
+      let changed = 0;
+      let removed = 0;
+      keys.forEach((id) => {
+        const before = state.imageOverrides[id];
+        const after = normalizeImagePath(before);
+        if (!after) {
+          delete state.imageOverrides[id];
+          removed += 1;
+          return;
+        }
+        if (after !== before) changed += 1;
+        state.imageOverrides[id] = after;
+      });
+      saveImageOverrides();
+      setMessage(
+        "Repair overrides เสร็จแล้ว | scanned=" + keys.length + " changed=" + changed + " removed=" + removed,
+        "ok"
+      );
+    }
+
+    function parseStructuredId(id) {
+      const parsed = parseIdMeta(id);
+      if (!parsed.doc || !Number.isFinite(parsed.rowNo) || parsed.rowNo <= 0) return null;
+      return { id, doc: parsed.doc, rowNo: parsed.rowNo, type: parsed.type };
+    }
+
+    function normalizeImagePath(pathValue) {
+      let clean = String(pathValue || "").trim().replace(/\\/g, "/");
+      if (!clean) return "";
+
+      // Strip URL/query/hash and absolute prefixes users may paste.
+      clean = clean.split("?")[0].split("#")[0];
+      clean = clean.replace(/^https?:\/\/[^/]+\/+/, "");
+      clean = clean.replace(/^\.?\/*/, "");
+      clean = clean.replace(/^final_data\//, "");
+
+      // Keep only path that starts at images/.
+      const idx = clean.indexOf("images/");
+      if (idx >= 0) clean = clean.slice(idx);
+      else clean = "images/" + clean;
+
+      // Collapse duplicated images/ prefix.
+      while (clean.startsWith("images/images/")) {
+        clean = clean.slice("images/".length);
+      }
+      return clean;
+    }
+
+    function runBatchSetImageRange() {
+      const startId = (window.prompt("Start id (เช่น party_list_31_9_26)", "") || "").trim();
+      if (!startId) return;
+      const start = parseStructuredId(startId);
+      if (!start) {
+        setMessage("start id ไม่ถูกต้องหรือไม่มี row_no ที่ parse ได้", "warn");
+        return;
+      }
+
+      const endInput = (window.prompt(
+        "End row_no หรือ End id ใน doc เดียวกัน (เช่น 57 หรือ party_list_31_9_57)",
+        String(start.rowNo)
+      ) || "").trim();
+      if (!endInput) return;
+
+      let endRowNo = null;
+      if (/^\d+$/.test(endInput)) {
+        endRowNo = Number(endInput);
+      } else {
+        const end = parseStructuredId(endInput);
+        if (!end) {
+          setMessage("end id ไม่ถูกต้อง", "warn");
+          return;
+        }
+        if (end.doc !== start.doc) {
+          setMessage("end id ต้องอยู่ doc เดียวกับ start id เท่านั้น", "warn");
+          return;
+        }
+        endRowNo = end.rowNo;
+      }
+      if (!Number.isFinite(endRowNo) || endRowNo <= 0) {
+        setMessage("end row_no ไม่ถูกต้อง", "warn");
+        return;
+      }
+
+      const defaultImage = state.imageOverrides[start.id] || state.imageMap[start.id] || ("images/" + start.doc + ".png");
+      const imagePathInput = window.prompt("Image path ที่ต้องใช้ทั้งช่วง", defaultImage || "");
+      if (imagePathInput === null) return;
+      const normalizedImagePath = normalizeImagePath(imagePathInput);
+      if (!normalizedImagePath) {
+        setMessage("image path ว่างหรือไม่ถูกต้อง", "warn");
+        return;
+      }
+
+      const rangeStart = Math.min(start.rowNo, endRowNo);
+      const rangeEnd = Math.max(start.rowNo, endRowNo);
+      const targets = state.rows.filter((row) =>
+        row.doc === start.doc &&
+        Number.isFinite(row.rowNo) &&
+        row.rowNo >= rangeStart &&
+        row.rowNo <= rangeEnd
+      );
+      if (!targets.length) {
+        setMessage("ไม่พบแถวในช่วงที่กำหนด", "warn");
+        return;
+      }
+
+      const existing = targets.filter((row) => Object.prototype.hasOwnProperty.call(state.imageOverrides, row.id));
+      let overwrite = false;
+      if (existing.length > 0) {
+        overwrite = window.confirm(
+          "พบ override เดิม " + existing.length + " รายการในช่วงนี้ ต้องการเขียนทับหรือไม่?"
+        );
+      }
+
+      let applied = 0;
+      let skipped = 0;
+      targets.forEach((row) => {
+        const hasOverride = Object.prototype.hasOwnProperty.call(state.imageOverrides, row.id);
+        if (hasOverride && !overwrite) {
+          skipped += 1;
+          return;
+        }
+        state.imageOverrides[row.id] = normalizedImagePath;
+        applied += 1;
+      });
+      saveImageOverrides();
+      setMessage(
+        "Batch apply สำเร็จ doc=" + start.doc +
+        " rows " + rangeStart + "-" + rangeEnd +
+        " | applied=" + applied + " skipped=" + skipped +
+        " | image=" + normalizedImagePath,
+        "ok"
+      );
+    }
+
+    function randomFromVisibleRows() {
+      const rows = state.filteredRows && state.filteredRows.length ? state.filteredRows : getFilteredRows();
+      if (!rows.length) {
+        setMessage("ไม่มีแถวให้สุ่มในเงื่อนไขที่เลือก", "warn");
+        return;
+      }
+      const index = Math.floor(Math.random() * rows.length);
+      const row = rows[index];
+      const tableRows = Array.from(el.tbody.querySelectorAll("tr"));
+      const targetRow = tableRows[index];
+      if (targetRow) {
+        targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetRow.style.outline = "2px solid #4b84ff";
+        targetRow.style.outlineOffset = "-2px";
+        setTimeout(() => {
+          targetRow.style.outline = "";
+          targetRow.style.outlineOffset = "";
+        }, 1400);
+      }
+      setMessage("สุ่มได้: " + row.id + " (" + row.votes + " votes)", "ok");
+    }
+
+    function exportCsv() {
+      if (!state.rows.length) {
+        setMessage("ยังไม่มีข้อมูลให้ export", "warn");
+        return;
+      }
+      const lines = ["id,votes"];
+      const rows = state.rows.slice().sort((a, b) => a.index - b.index);
+      rows.forEach((row) => lines.push(row.id + "," + row.votes));
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "submission_consistency_export.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setMessage("Export สำเร็จ: submission_consistency_export.csv", "ok");
+    }
+
+    function resetFilters() {
+      el.typeFilter.value = "all";
+      el.searchInput.value = "";
+      el.sortVotes.value = "none";
+      el.minVotes.value = "";
+      el.maxVotes.value = "";
+      renderTable();
+    }
+
+    async function loadCsvFromText(text, sourceLabel) {
+      const rows = parseCsv(text);
+      state.rows = rows;
+      applyEditsToRows();
+      state.loaded = true;
+      state.sourcePath = sourceLabel;
+      renderTable();
+      setMessage(
+        "Loaded " + rows.length.toLocaleString() + " rows from " + sourceLabel,
+        "ok"
+      );
+    }
+
+    async function loadDefaultCsv() {
+      setMessage("กำลังโหลด CSV เริ่มต้น...", "");
+      if (window.location.protocol === "file:") {
+        setMessage(
+          "เบราว์เซอร์บล็อกการอ่าน CSV ผ่าน file:// ต้องเปิดหน้านี้ผ่าน http:// เท่านั้น (เช่น python -m http.server แล้วเปิด /final_data/consistency_review.html)",
+          "warn"
+        );
+        return;
+      }
+      try {
+        const res = await fetch(DEFAULT_CSV_PATH, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+        const text = await res.text();
+        await loadCsvFromText(text, DEFAULT_CSV_PATH);
+      } catch (err) {
+        const lastErr = String(err && err.message ? err.message : err);
+      setMessage(
+        "โหลดไฟล์เริ่มต้นไม่สำเร็จ (" + lastErr + ") ตรวจว่าไฟล์ submission_fixed_v4.csv ถูกเสิร์ฟได้ในสภาพแวดล้อมที่เปิดหน้านี้",
+        "warn"
+      );
+      }
+    }
+
+    async function loadImageIndex() {
+      try {
+        const res = await fetch(IMAGE_INDEX_PATH, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const payload = await res.json();
+        state.imageMap = payload && payload.mapping ? payload.mapping : {};
+        state.imageIndexLoaded = true;
+      } catch (_err) {
+        state.imageMap = {};
+        state.imageIndexLoaded = false;
+      }
+    }
+
+    function attachGlobalEvents() {
+      [el.typeFilter, el.searchInput, el.sortVotes, el.minVotes, el.maxVotes]
+        .forEach((node) => node.addEventListener("input", renderTable));
+
+      el.resetFiltersBtn.addEventListener("click", resetFilters);
+      el.exportBtn.addEventListener("click", exportCsv);
+      el.exportImageOverridesBtn.addEventListener("click", exportImageOverrides);
+      el.importImageOverridesBtn.addEventListener("click", () => {
+        el.imageOverridesFileInput.value = "";
+        el.imageOverridesFileInput.click();
+      });
+      el.imageOverridesFileInput.addEventListener("change", async (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        const text = await file.text();
+        importImageOverridesFromText(text);
+      });
+      el.clearImageOverridesBtn.addEventListener("click", clearAllImageOverrides);
+      el.batchSetImageRangeBtn.addEventListener("click", runBatchSetImageRange);
+      el.repairImageOverridesBtn.addEventListener("click", repairExistingImageOverrides);
+      el.randomRowBtn.addEventListener("click", randomFromVisibleRows);
+      el.reloadDefaultBtn.addEventListener("click", async () => {
+        await loadDefaultCsv();
+      });
+
+      el.closeModalBtn.addEventListener("click", () => {
+        el.imgModal.classList.remove("show");
+      });
+      el.imgModal.addEventListener("click", (ev) => {
+        if (ev.target === el.imgModal) el.imgModal.classList.remove("show");
+      });
+      window.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") el.imgModal.classList.remove("show");
+      });
+
+      el.zoomInBtn.addEventListener("click", () => applyZoom(currentZoom + 0.1));
+      el.zoomOutBtn.addEventListener("click", () => applyZoom(currentZoom - 0.1));
+      el.zoom100Btn.addEventListener("click", () => applyZoom(1));
+      el.zoomFitBtn.addEventListener("click", () => applyZoom(1));
+      el.zoomRange.addEventListener("input", () => applyZoom(Number(el.zoomRange.value) / 100));
+      el.modalImage.addEventListener("wheel", (ev) => {
+        if (!el.imgModal.classList.contains("show")) return;
+        ev.preventDefault();
+        const delta = ev.deltaY < 0 ? 0.1 : -0.1;
+        applyZoom(currentZoom + delta);
+      }, { passive: false });
+    }
+
+    async function init() {
+      loadEdits();
+      loadImageOverrides();
+      attachGlobalEvents();
+      await loadImageIndex();
+      await loadDefaultCsv();
+      if (state.imageIndexLoaded) {
+        setMessage(
+          "Loaded " + state.rows.length.toLocaleString() + " rows from " + DEFAULT_CSV_PATH + " (image source: mapped-first)",
+          "ok"
+        );
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
